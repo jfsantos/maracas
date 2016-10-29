@@ -13,18 +13,21 @@ setup(
     install_requires = [
         'numpy',
         'scipy',
+        'numba'
     ],
 
     tests_require = [
-      'nose'
+        'pytest'
     ],
 
-    test_suite = 'nose.collector',
+    setup_requires = [
+        'pytest-runner'
+    ],
 
     entry_points = {
 #        'console_scripts': [
 #            'fuhai = fuhai.fuhai:main',
-        ]
+#        ]
     }
 )
 

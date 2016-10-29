@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.signal import lfilter
+from numba import autojit
 
+@autojit
 def asl_meter(x, fs, nbits=16):
     '''Measure the Active Speech Level (ASR) of x following ITU-T P.56.
     If x is integer, it will be scaled to (-1, 1) according to nbits.
@@ -63,6 +65,7 @@ def asl_meter(x, fs, nbits=16):
 
     return asl
 
+@autojit
 def bin_interp(upcount, lwcount, upthr, lwthr, margin, tol=0.1):
     n_iter = 1
     if abs(upcount - upthr - margin) < tol:
@@ -85,4 +88,36 @@ def bin_interp(upcount, lwcount, upthr, lwthr, margin, tol=0.1):
                 midthr = (lwthr + midthr)/2
             diff = midcount - midthr - margin
     return midcount
+
+def rms_energy(x):
+    return 10*np.log10(x.dot(x)/len(x))
+
+def add_noise(s, n, fs, snr):
+    '''Adds noise to a speech signal at a given SNR.
+    The speech level is computed as the P.56 active speech level, and
+    the noise level is computed as the RMS level. The speech level is considered
+    as the reference.'''
+        # Ensure masker is at least as long as signal
+    if len(n) < len(s):
+        raise ValueError('len(n) needs to be at least equal to len(s)!')
+
+    # Generate random section of masker
+    if len(n) != len(s):
+        n_idx = np.random.randint(0, len(n)-len(s))
+        n = n[n_idx:n_idx+len(s)]
+
+    # Scale noise wrt speech at target SNR
+    N_dB = rms_energy(n)
+    S_dB = asl_meter(s, fs)
+
+    N_scalar = 10**(N_dB/20)
+    S_scalar = 10**(S_dB/20)
+    SNR_scalar = 10**(snr/20)
+
+    # Add and rescale to keep speech at same level
+    n = n/N_scalar * S_scalar/SNR_scalar
+    y = s + n
+
+    return y, n
+
 
