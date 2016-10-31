@@ -14,6 +14,7 @@ setup(
         'numpy',
         'scipy',
         'numba'
+        'tqdm'
     ],
 
     tests_require = [
