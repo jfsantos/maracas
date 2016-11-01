@@ -15,7 +15,7 @@ def wavread(filename):
 def wavwrite(filename, s, fs):
     if s.dtype != np.int16:
         s = np.array(s * 2**15, dtype=np.int16)
-    if np.any(s > np.iinfo(np.int16)) or np.any(s < np.iinfo(np.int16)):
+    if np.any(s > np.iinfo(np.int16).max) or np.any(s < np.iinfo(np.int16).min):
         warnings.warn('Warning: clipping detected when writing {}'.format(filename))
     scipy.io.wavfile.write(filename, fs, s)
 
