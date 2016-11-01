@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # Copyright 2016 João Felipe Santos, jfsantos@emt.inrs.ca
 #
-# This file is part of the fuhai library, and is licensed under the
+# This file is part of the maracas library, and is licensed under the
 # MIT license.
 from setuptools import setup, find_packages
 
 setup(
-    name = "fuhai",
+    name = "maracas",
     version = "0.0.1",
     packages = find_packages(),
 
@@ -27,7 +27,7 @@ setup(
 
     entry_points = {
 #        'console_scripts': [
-#            'fuhai = fuhai.fuhai:main',
+#            'maracas = maracas.maracas:main',
 #        ]
     }
 )

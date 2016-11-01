@@ -5,8 +5,8 @@ from tqdm import tqdm
 from glob import glob
 import numpy as np
 
-from fuhai.utils import wavread, wavwrite, recursive_glob
-from fuhai import add_noise
+from maracas.utils import wavread, wavwrite, recursive_glob
+from maracas import add_noise
 
 class Dataset(object):
     '''Defines a corrupted speech dataset. Contains information about speech

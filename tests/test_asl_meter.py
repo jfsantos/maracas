@@ -1,4 +1,4 @@
-from fuhai import asl_meter
+from maracas import asl_meter
 from scipy.io.wavfile import read as wavread
 import numpy as np
 

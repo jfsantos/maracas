@@ -1,4 +1,4 @@
-from fuhai import add_noise, asl_meter, rms_energy
+from maracas import add_noise, asl_meter, rms_energy
 from scipy.io.wavfile import read as wavread
 import numpy as np
 
