@@ -3,7 +3,7 @@ from __future__ import print_function, division, absolute_import
 import numpy as np
 import scipy.io.wavfile
 
-import fnmatch, os
+import fnmatch, os, warnings
 
 def wavread(filename):
     fs, x = scipy.io.wavfile.read(filename)
@@ -15,8 +15,8 @@ def wavread(filename):
 def wavwrite(filename, s, fs):
     if s.dtype != np.int16:
         s = np.array(s * 2**15, dtype=np.int16)
-    if np.any(abs(s) > 1.0):
-        print('Warning: clipping detected when writing {}'.format(filename))
+    if np.any(s > np.iinfo(np.int16)) or np.any(s < np.iinfo(np.int16)):
+        warnings.warn('Warning: clipping detected when writing {}'.format(filename))
     scipy.io.wavfile.write(filename, fs, s)
 
 
