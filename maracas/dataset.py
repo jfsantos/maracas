@@ -78,7 +78,7 @@ class Dataset(object):
         try:
             for snr in snrs:
                 os.mkdir(os.path.join(output_dir, '{}_{}dB'.format(noise, snr)))
-        except FileExistsError:
+        except OSError:
             print('Condition folder already exists!')
 
         for snr in snrs:

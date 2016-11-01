@@ -92,7 +92,7 @@ def bin_interp(upcount, lwcount, upthr, lwthr, margin, tol=0.1):
 def rms_energy(x):
     return 10*np.log10((1e-12 + x.dot(x))/len(x))
 
-def add_noise(s, n, fs, snr, speech_energy='rms'):
+def add_noise(s, n, fs, snr, speech_energy='rms', asl_level=-26.0):
     '''Adds noise to a speech signal at a given SNR.
     The speech level is computed as the P.56 active speech level, and
     the noise level is computed as the RMS level. The speech level is considered
@@ -122,6 +122,8 @@ def add_noise(s, n, fs, snr, speech_energy='rms'):
     # Add and rescale to keep speech at same level
     n = n/N_scalar * S_scalar/SNR_scalar
     y = s + n
+
+    y = y/10**(asl_meter(y, fs)/20) * 10**(asl_level/20)
 
     return y, n
 
