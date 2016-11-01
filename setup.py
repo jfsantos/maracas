@@ -13,7 +13,7 @@ setup(
     install_requires = [
         'numpy',
         'scipy',
-        'numba'
+        'numba',
         'tqdm'
     ],
 
