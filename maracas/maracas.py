@@ -92,39 +92,37 @@ def bin_interp(upcount, lwcount, upthr, lwthr, margin, tol=0.1):
 def rms_energy(x):
     return 10*np.log10((1e-12 + x.dot(x))/len(x))
 
-def add_noise(s, n, fs, snr, speech_energy='rms', asl_level=-26.0):
+def add_noise(speech, noise, fs, snr, speech_energy='rms', asl_level=-26.0):
     '''Adds noise to a speech signal at a given SNR.
     The speech level is computed as the P.56 active speech level, and
     the noise level is computed as the RMS level. The speech level is considered
     as the reference.'''
         # Ensure masker is at least as long as signal
-    if len(n) < len(s):
-        raise ValueError('len(n) needs to be at least equal to len(s)!')
+    if len(noise) < len(speech):
+        raise ValueError('len(noise) needs to be at least equal to len(speech)!')
 
     # Generate random section of masker
-    if len(n) != len(s):
-        n_idx = np.random.randint(0, len(n)-len(s))
-        n = n[n_idx:n_idx+len(s)]
+    if len(noise) != len(speech):
+        idx = np.random.randint(0, len(noise)-len(speech))
+        noise = noise[idx:idx+len(speech)]
 
     # Scale noise wrt speech at target SNR
-    N_dB = rms_energy(n)
+    N_dB = rms_energy(noise)
     if speech_energy == 'rms':
-        S_dB = rms_energy(s)
+        S_dB = rms_energy(speech)
     elif speech_energy == 'P.56':
-        S_dB = asl_meter(s, fs)
+        S_dB = asl_meter(speech, fs)
     else:
         raise ValueError('speech_energy has to be either "rms" or "P.56"')
 
-    N_scalar = 10**(N_dB/20)
-    S_scalar = 10**(S_dB/20)
-    SNR_scalar = 10**(snr/20)
+    # Rescale N
+    N_new = S_dB - snr
+    noise_scaled = 10**(N_new/20) * noise / 10**(N_dB/20)
 
-    # Add and rescale to keep speech at same level
-    n = n/N_scalar * S_scalar/SNR_scalar
-    y = s + n
+    y = speech + noise_scaled
 
     y = y/10**(asl_meter(y, fs)/20) * 10**(asl_level/20)
 
-    return y, n
+    return y, noise
 
 
