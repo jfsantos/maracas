@@ -83,7 +83,7 @@ class Dataset(object):
 
         for snr in snrs:
             if files_per_condition is not None:
-                speech_files = np.random.choice(self.speech, files_per_condition).tolist()
+                speech_files = np.random.choice(self.speech, files_per_condition, replace=False).tolist()
             else:
                 speech_files = self.speech
 
