@@ -8,7 +8,7 @@ def test_add_noise_rms():
     n, _ = wavread('tests/ssn.wav')
 
     y, n_scaled = add_noise(x, n, fs, 5.0)
-    snr = 20*np.log10(np.linalg.norm(x)/np.linalg.norm(n_scaled))
+    snr = rms_energy(x) - rms_energy(n_scaled)
 
     assert np.isclose(snr, 5.0)
 

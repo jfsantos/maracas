@@ -6,7 +6,7 @@ from glob import glob
 import numpy as np
 
 from maracas.utils import wavread, wavwrite, recursive_glob
-from maracas import add_noise
+from maracas import add_noise, add_reverb
 
 class Dataset(object):
     '''Defines a corrupted speech dataset. Contains information about speech
@@ -16,7 +16,7 @@ class Dataset(object):
     def __init__(self, speech_energy='P.56'):
         self.speech = list()
         self.noise = dict()
-        self.rir = dict()
+        self.reverb = dict()
         self.speech_energy = speech_energy
 
 
@@ -37,32 +37,40 @@ class Dataset(object):
             raise ValueError('Path needs to point to an existing file/folder')
 
 
-    def add_noise_files(self, path, name=None):
+    def _add_distortion_files(self, path, distortion_dict, name=None):
         '''Adds noise files to the dataset. path can be either for a single file or
         for a folder. name will replace the file name as a key in the noise file dict.
         '''
         if os.path.isfile(path):
             if name is None:
                 name = os.path.splitext(os.path.basename(path))[0]
-            self.noise[name] = path
+            distortion_dict[name] = path
         elif os.path.isdir(path):
             files = glob(os.path.join(path, '*.wav')) + glob(os.path.join(path, '*.WAV'))
 
             if name is not None:
                 if type(name) != list or type(name) != tuple:
-                    raise ValueError('When path is a folder, name has to be a list or tuple with the same length as the number of noise files in the folder.')
+                    raise ValueError('When path is a folder, name has to be a list or tuple with the same length as the number of distortion files in the folder.')
                 elif len(name) != len(files):
                     raise ValueError('len(name) needs to be equal to len(files)')
             else:
                 name = [os.path.splitext(os.path.basename(f))[0] for f in files]
 
             for n, f in zip(name, files):
-                self.noise[n] = f
+                distortion_list[n] = f
         else:
             raise ValueError('Path needs to point to an existing file/folder')
 
 
-    def generate_condition(self, snrs, noise, output_dir, files_per_condition=None):
+    def add_noise_files(self, path, name=None):
+        self._add_distortion_files(path, self.noise, name=name)
+
+
+    def add_reverb_files(self, path, name=None):
+        self._add_distortion_files(path, self.reverb, name=name)
+
+
+    def generate_condition(self, snrs, noise, output_dir, reverb=None, files_per_condition=None):
         if noise not in self.noise.keys():
             raise ValueError('noise not in dataset')
 
@@ -71,13 +79,19 @@ class Dataset(object):
 
         n, nfs = wavread(self.noise[noise])
 
+        if reverb is not None:
+            r, rfs = wavread(self.reverb[reverb])
+            condition_name = '{}_{}'.format(reverb, noise)
+        else:
+            condition_name = noise
+
         if not os.path.isdir(output_dir):
             os.mkdir(output_dir)
 
         # FIXME: avoid overwriting an existing folder?
         try:
             for snr in snrs:
-                os.mkdir(os.path.join(output_dir, '{}_{}dB'.format(noise, snr)))
+                os.mkdir(os.path.join(output_dir, '{}_{}dB'.format(condition_name, snr)))
         except OSError:
             print('Condition folder already exists!')
 
@@ -91,8 +105,12 @@ class Dataset(object):
                 x, fs = wavread(f)
                 if fs != nfs:
                     raise ValueError('Speech file and noise file have different fs!')
+                if reverb is not None:
+                    if fs != rfs:
+                        raise ValueError('Speech file and reverb file have different fs!')
+                    x = add_reverb(x, r, fs, speech_energy=self.speech_energy)
                 y = add_noise(x, n, fs, snr, speech_energy=self.speech_energy)[0]
-                wavwrite(os.path.join(output_dir, '{}_{}dB'.format(noise, snr),
+                wavwrite(os.path.join(output_dir, '{}_{}dB'.format(condition_name, snr),
                     os.path.basename(f)), y, fs)
 
 
@@ -100,8 +118,9 @@ class Dataset(object):
         if type(snrs) is not list:
             snrs = [snrs]
 
-        for noise in self.noise.keys():
+        for reverb, noise in itertools.product(self.reverb.keys(), self.noise.keys()):
             self.generate_condition(snrs, noise, output_dir,
+                    reverb=reverb,
                     files_per_condition=files_per_condition)
 
 

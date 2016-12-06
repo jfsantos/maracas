@@ -97,7 +97,7 @@ def add_noise(speech, noise, fs, snr, speech_energy='rms', asl_level=-26.0):
     The speech level is computed as the P.56 active speech level, and
     the noise level is computed as the RMS level. The speech level is considered
     as the reference.'''
-        # Ensure masker is at least as long as signal
+    # Ensure masker is at least as long as signal
     if len(noise) < len(speech):
         raise ValueError('len(noise) needs to be at least equal to len(speech)!')
 
@@ -123,6 +123,16 @@ def add_noise(speech, noise, fs, snr, speech_energy='rms', asl_level=-26.0):
 
     y = y/10**(asl_meter(y, fs)/20) * 10**(asl_level/20)
 
-    return y, noise
+    return y, noise_scaled
+
+
+def add_reverb(speech, reverb, fs, speech_energy='rms', asl_level=-26.0):
+    '''Adds reverb (convolutive noise) to a speech signal.
+    The output speech level is normalized to asl_level.
+    '''
+    y = lfilter(reverb, 1, speech)
+    y = y/10**(asl_meter(y, fs)/20) * 10**(asl_level/20)
+
+    return y
 
 
