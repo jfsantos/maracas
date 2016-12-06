@@ -27,6 +27,6 @@ d.add_reverb_files('/home/jfsantos/data/RIR_sim/rir_0.2_1.wav')
 d.add_reverb_files('/home/jfsantos/data/RIR_sim/rir_0.8_1.wav')
 
 # When generating a dataset, you can choose which SNRs will be used and how many
-files per condition you want to be generated. 
+# files per condition you want to be generated. 
 d.generate_dataset([-6, -3, 0, 3, 6], '/tmp/noise_plus_reverb_dataset', files_per_condition=5)
 ```
