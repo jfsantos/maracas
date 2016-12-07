@@ -57,7 +57,7 @@ class Dataset(object):
                 name = [os.path.splitext(os.path.basename(f))[0] for f in files]
 
             for n, f in zip(name, files):
-                distortion_list[n] = f
+                distortion_dict[n] = f
         else:
             raise ValueError('Path needs to point to an existing file/folder')
 
