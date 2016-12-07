@@ -13,8 +13,8 @@ np.random.seed(42)
 d = Dataset()
 
 # All files can be added one by one or by folder. Adding a folder will add
-# all speech files inside that folder recursively.
-d.add_speech_files('/home/jfsantos/data/speech_files/')
+# all speech files inside that folder recursively if recursive=True.
+d.add_speech_files('/home/jfsantos/data/speech_files/', recursive=True)
 
 # When adding noises, you can give a "nickname" to each noise file. If you do not
 # give it a name, the name will be the file name without the '.wav' extension
