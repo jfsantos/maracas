@@ -1,3 +1,5 @@
+https://travis-ci.org/jfsantos/maracas.svg?branch=master
+
 maracas is a library for corrupting audio files with additive and convolutive
 noise. Its objective is to simplify reproducible dataset generation for speech processing (mainly enhancement and ASR).
 
