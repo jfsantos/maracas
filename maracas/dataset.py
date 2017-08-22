@@ -118,10 +118,17 @@ class Dataset(object):
         if type(snrs) is not list:
             snrs = [snrs]
 
-        for reverb, noise in itertools.product(self.reverb.keys(), self.noise.keys()):
-            self.generate_condition(snrs, noise, output_dir,
-                    reverb=reverb,
+        if len(self.reverb) > 0:
+            for reverb, noise in itertools.product(self.reverb.keys(), self.noise.keys()):
+                self.generate_condition(snrs, noise, output_dir,
+                        reverb=reverb,
+                        files_per_condition=files_per_condition)
+        else:
+            for noise in self.noise.keys():
+                self.generate_condition(snrs, noise, output_dir,
+                    reverb=None,
                     files_per_condition=files_per_condition)
+
 
 
 
